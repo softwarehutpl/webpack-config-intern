@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const HtmlPlugin = require('html-webpack-plugin');
 
 module.exports = function(env) {
     return {
@@ -42,6 +43,9 @@ module.exports = function(env) {
                 filename: '[name].bundle.css',
                 allChunks: true,
                 disable: env === 'dev',
+            }),
+            new HtmlPlugin({
+                template: './index.html',
             }),
         ],
     };
