@@ -3,50 +3,58 @@ const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlPlugin = require('html-webpack-plugin');
 
-module.exports = function(env) {
-    return {
-        entry: {
-            app: './src/app.js',
-        },
-        output: {
-            filename: '[name].bundle.js',
-            path: path.resolve(__dirname, 'dist'),
-        },
+const DIST_DIR = path.resolve(__dirname, 'dist');
+const SRC_DIR = path.resolve(__dirname, 'src');
 
-        module: {
-            rules: [{
-                test: /\.css$/,
-                use: ExtractTextPlugin.extract({
-                    fallback: 'style-loader',
-                    use: 'css-loader',
-                })
-            }, {
-                test: /\.less$/,
-                use: ExtractTextPlugin.extract({
-                    fallback: 'style-loader',
-                    use: ['css-loader', 'less-loader'],
-                })
-            }, {
-                test: /\.jpg$/,
-                use: ["file-loader"],
-            }, {
-                test: /\.png$/,
-                use: ["url-loader?mimetype=image/png"],
-            }, {
-                test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-                loader: 'url-loader?limit=10000&mimetype=image/svg+xml'
-            }]
-        },
+module.exports = function (env) {
+  return {
+    entry: {
+      app: SRC_DIR + '/app.js',
+    },
+    output: {
+      publicPath: '/',
+      filename: '[name].bundle.js',
+      path: DIST_DIR,
+    },
+    resolve: {
+      alias: {
+        assets: path.resolve(SRC_DIR, 'assets'),
+      },
+    },
+    module: {
+      rules: [{
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: 'css-loader',
+        })
+      }, {
+        test: /\.less$/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: ['css-loader', 'less-loader'],
+        })
+      }, {
+        test: /\.(jpg|png|svg)$/,
+        use: [{
+          loader: 'file-loader',
+          query: {
+            outputPath: 'assets/images/',
+          }
+        }],
+      }]
+    },
 
-        plugins: [
-            new ExtractTextPlugin({
-                filename: '[name].bundle.css',
-                allChunks: true,
-                disable: env === 'dev',
-            }),
-            new HtmlPlugin({
-                template: './index.html',
-            }),
-        ],
-    };
+    plugins: [
+      new ExtractTextPlugin({
+        filename: '[name].bundle.css',
+        allChunks: true,
+        disable: env === 'dev',
+      }),
+      new HtmlPlugin({
+        template: SRC_DIR + '/index.html',
+      }),
+      new webpack.NamedModulesPlugin(),
+    ],
+  };
 };
